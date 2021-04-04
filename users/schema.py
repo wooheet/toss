@@ -37,7 +37,7 @@ class CreateUserInput(graphene.InputObjectType, CreateUserAttribute):
     pass
 
 
-class CreateUser(graphene.Mutation):
+class CreateAccount(graphene.Mutation):
     """Create a user."""
     user = graphene.Field(lambda: UserNode,
                           description="User created by this mutation.")
@@ -53,7 +53,7 @@ class CreateUser(graphene.Mutation):
         user = User.objects.create_user(**data)
         user.save()
 
-        return CreateUser(user=user)
+        return CreateAccount(user=user)
 
 
 class RequestSecret(graphene.Mutation):
@@ -82,5 +82,5 @@ class Query(ObjectType):
 
 
 class Mutation(ObjectType):
-    create_user = CreateUser.Field()
+    create_account = CreateAccount.Field()
     request_secret = RequestSecret.Field()
