@@ -9,7 +9,13 @@ export const LOG_IN = gql`
         username: $username
         password: $password
     ) {
-        token
+        success,
+        errors,
+        token,
+        user {
+          id,
+          username,
+        }
     }
   }
 `;

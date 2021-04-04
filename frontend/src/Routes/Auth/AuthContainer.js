@@ -51,11 +51,13 @@ export default () => {
           const {
             data: { tokenAuth }
           } = await requestSecretMutation();
-          console.log('login', tokenAuth.token)
+          console.log('login', tokenAuth)
           const token = tokenAuth.token
-          if (!tokenAuth) {
+          const errors = tokenAuth.errors
+
+          if (!tokenAuth.success) {
             toast.error("You dont have an account yet, create one");
-            setTimeout(() => setAction("signUp"), 3000);
+            // setTimeout(() => setAction("signUp"), 3000);
           } else {
             toast.success("Check your inbox for your login secret");
             // setAction("confirm");
