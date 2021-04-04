@@ -39,6 +39,7 @@ DJANGO_APPS = [
     'django.contrib.staticfiles',
     'rest_framework.authtoken',
     'rest_framework',
+    'graphene_django',
     'corsheaders',
 ]
 
@@ -88,6 +89,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        "ATOMIC_MUTATIONS": True,
     }
 }
 
@@ -141,3 +143,10 @@ CORS_ORIGIN_WHITELIST = [
     "http://localhost:3000",
 ]
 
+GRAPHENE = {
+    'SCHEMA': 'config.schema.schema',
+    "ATOMIC_MUTATIONS": True,
+    'MIDDLEWARE': (
+        'graphene_django.debug.DjangoDebugMiddleware',
+    )
+}

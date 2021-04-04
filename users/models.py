@@ -4,7 +4,6 @@ from core import models as core_models
 
 
 class User(AbstractUser, core_models.TimeStampedModel):
-
     """ Custom User Model """
 
     GENDER_MALE = "male"
@@ -28,6 +27,8 @@ class User(AbstractUser, core_models.TimeStampedModel):
 
     CURRENCY_CHOICES = ((CURRENCY_USD, "USD"), (CURRENCY_KRW, "KRW"))
 
+    email = models.CharField(max_length=100, blank=True, null=True, default='',
+                             help_text='Email', db_index=True)
     avatar = models.ImageField(upload_to="avatars", blank=True)
     gender = models.CharField(choices=GENDER_CHOICES, max_length=10, blank=True)
     bio = models.TextField(blank=True)

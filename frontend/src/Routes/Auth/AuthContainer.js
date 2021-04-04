@@ -2,38 +2,38 @@ import React, { useState } from "react";
 import AuthPresenter from "./AuthPresenter";
 import useInput from "../../Hooks/useInput";
 import { useMutation } from "react-apollo-hooks";
-// import { LOG_IN, CREATE_ACCOUNT } from "./AuthQueries";
-import { LOG_IN } from "./AuthQueries";
+import { LOG_IN, CREATE_ACCOUNT } from "./AuthQueries";
 import { toast } from "react-toastify";
 
 export default () => {
   const [action, setAction] = useState("logIn");
-  const username = useInput("");
+  const username = useInput("test12311231232");
+  const password = useInput("");
   const firstName = useInput("");
   const lastName = useInput("");
   const email = useInput("itnico.las.me@gmail.com");
 
   const [requestSecret] = useMutation(LOG_IN, {
     update: (_, { data }) => {
-      console.log(email.value)
-      const { requestSecret } = data;
-      console.log(requestSecret)
-      // if (!requestSecret) {
-      //   toast.error("You dont have an account yet, create one");
-      //   setTimeout(() => setAction("signUp"), 3000);
-      // }
+      if (!requestSecret) {
+        toast.error("You dont have an account yet, create one");
+        setTimeout(() => setAction("signUp"), 3000);
+      }
     },
-    variables: { email: email.value }
+    variables: {
+      email: email.value,
+      username: username.value,
+    }
   });
 
-  // const [createAccount] = useMutation(CREATE_ACCOUNT, {
-  //   variables: {
-  //     email: email.value,
-  //     username: username.value,
-  //     firstName: firstName.value,
-  //     lastName: lastName.value
-  //   }
-  // });
+  const [createAccount] = useMutation(CREATE_ACCOUNT, {
+    variables: {
+      email: email.value,
+      username: username.value,
+      firstName: firstName.value,
+      lastName: lastName.value
+    }
+  });
 
   const onSubmit = e => {
     e.preventDefault();
@@ -50,7 +50,7 @@ export default () => {
         firstName.value !== "" &&
         lastName.value !== ""
       ) {
-        console.log('create account')
+        createAccount();
       } else {
         toast.error("All field are required");
       }
