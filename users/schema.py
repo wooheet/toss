@@ -38,7 +38,7 @@ class CreateUserInput(graphene.InputObjectType, CreateUserAttribute):
 
 
 class CreateUser(graphene.Mutation):
-    """Create a planet."""
+    """Create a user."""
     user = graphene.Field(lambda: UserNode,
                           description="User created by this mutation.")
 
@@ -56,6 +56,23 @@ class CreateUser(graphene.Mutation):
         return CreateUser(user=user)
 
 
+class RequestSecret(graphene.Mutation):
+    is_secret = graphene.Boolean()
+
+    class Arguments:
+        email = graphene.String(required=True)
+
+    def mutate(self, info, email):
+        print('email', email)
+        try:
+            User.objects.get(email=email)
+            is_secret = True
+        except Exception:
+            is_secret = False
+
+        return RequestSecret(is_secret=is_secret)
+
+
 class Query(ObjectType):
     users = relay.Node.Field(UserNode)  # get user by id or by field name
     all_users = DjangoFilterConnectionField(UserNode)  # get all users
@@ -66,3 +83,4 @@ class Query(ObjectType):
 
 class Mutation(ObjectType):
     create_user = CreateUser.Field()
+    request_secret = RequestSecret.Field()

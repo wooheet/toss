@@ -7,25 +7,22 @@ import { toast } from "react-toastify";
 
 export default () => {
   const [action, setAction] = useState("logIn");
-  const username = useInput("test10");
+  const username = useInput("test11");
   const password = useInput("");
   const firstName = useInput("");
   const lastName = useInput("");
-  const email = useInput("itnico.las.me@gmail.com");
+  const email = useInput("teddy@gamil.com");
 
   const [requestSecret] = useMutation(LOG_IN, {
     update: (_, { data }) => {
       const { requestSecret } = data;
-      console.log(requestSecret)
-      if (!requestSecret) {
+      if (!requestSecret.isSecret) {
         toast.error("You dont have an account yet, create one");
         setTimeout(() => setAction("signUp"), 3000);
       }
     },
     variables: {
-      email: email.value,
-      username: username.value,
-      password: password.value
+      email: email.value
     }
   });
 
