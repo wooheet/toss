@@ -67,7 +67,7 @@ export default () => {
       <HeaderWrapper>
         <HeaderColumn>
           <Link to="/">
-            <img src="https://static.toss.im/tds/icon/svg/logo.svg" alt="logo" width={95}/>
+            {/*<img src="https://static.toss.im/tds/icon/svg/logo.svg" alt="logo" width={95}/>*/}
           </Link>
         </HeaderColumn>
         <HeaderColumn>

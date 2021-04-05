@@ -11,7 +11,7 @@ print("RUN_MODE : {} ".format(RUN_MODE))
 
 if RUN_MODE == 'test':
     os.environ['STAGE'] = 'develop'
-    from .test import *
+    from .base import *
 
 else:
     raise Exception('RUN_MODE is invalid {}. This is critical Exception! '.format(RUN_MODE))

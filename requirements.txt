@@ -14,3 +14,5 @@ django-graphql-jwt==0.3.0
 django-redis==4.12.1
 django-graphql-auth==0.3.16
 graphene-django==2.15.0
+pytest==3.10.0
+pytest-django==3.1.2

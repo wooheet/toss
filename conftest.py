@@ -15,26 +15,19 @@ class AuthAPITestCase(APITestCase):
 
     def _make_pre_signup_data(self, nickname):
         pre_signup_data = {
-            "profile": {
-                "nickname": nickname,
-                "first_name": "first_name",
-                "last_name": "last_name",
-                "profile_url": "picture",
-                "email": "{}@mail.com".format(nickname),
-                "locale": "locale",
-            },
-            "did": "testdid",
+            "nickname": nickname,
+            "first_name": "first_name",
+            "last_name": "last_name",
+            "profile_url": "picture",
+            "email": "{}@mail.com".format(nickname),
         }
         return pre_signup_data
 
     def signup_user(self, **kwargs):
         nickname = kwargs.get("nickname", "name")
-        os_type = kwargs.get("os_type", "ios")
 
         client = APIClient()
         client.credentials(HTTP_USER_AGENT="AuthServer")
-
-        token = "%s-device-token" % nickname
 
         pre_signup_data = self._make_pre_signup_data(nickname)
 
@@ -57,43 +50,46 @@ class AuthAPITestCase(APITestCase):
             data, settings.AUTH_SERVER_PRIVATE_KEY, algorithm="RS256"
         ).decode("utf-8")
 
-        client.credentials(HTTP_AUTHORIZATION="Bearer %s" % self.jwt_token)
-
-        signup_data = {
-            "id_token": self.id_token,
-            "os_type": os_type,
-            "model_name": "{}_model_name".format(nickname),
-            "device_token": token,
-            "country": 'kr',
-            "service_agreement": {
-                "service_terms": True,
-                "personal_info_col": True,
-                "personal_info_exp": True,
-                "device_access": True,
-                "marketing": True,
-                "marketing_email": True,
-                "night_push_agree": True,
-                "birth_gender_nickname_col": True,
-            },
-        }
-
-        res = client.post(
-            reverse("user-new-signup"), signup_data, format="json"
-        )
-
-        client_data = res.data.get("results")[0]
-        client_data.update(
-            os_type=os_type, device_token=token
-        )
-
-        self.user_id = client_data.get("id")
-
-        return client_data, client
+        return self.jwt_token
+        # client.credentials(HTTP_AUTHORIZATION="Bearer %s" % self.jwt_token)
+        #
+        # signup_data = {
+        #     "id_token": self.id_token,
+        #     "os_type": os_type,
+        #     "model_name": "{}_model_name".format(nickname),
+        #     "device_token": token,
+        #     "country": 'kr',
+        #     "service_agreement": {
+        #         "service_terms": True,
+        #         "personal_info_col": True,
+        #         "personal_info_exp": True,
+        #         "device_access": True,
+        #         "marketing": True,
+        #         "marketing_email": True,
+        #         "night_push_agree": True,
+        #         "birth_gender_nickname_col": True,
+        #     },
+        # }
+        #
+        # res = client.post(
+        #     reverse("user-new-signup"), signup_data, format="json"
+        # )
+        #
+        # client_data = res.data.get("results")[0]
+        # client_data.update(
+        #     os_type=os_type, device_token=token
+        # )
+        #
+        # self.user_id = client_data.get("id")
+        #
+        # return client_data, client
 
     def setUp(self, **kwargs):
+        # super().setUp()
+        # self.user, self.client = self.signup_user(**kwargs)
+        # self.no_signup_client = APIClient()
         super().setUp()
-        self.user, self.client = self.signup_user(**kwargs)
-        self.no_signup_client = APIClient()
+        self.signup_user(**kwargs)
 
     def many_signup(self, count):
         signup_list = list(

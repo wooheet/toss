@@ -8,6 +8,7 @@ from .models import User
 from .serializers import (UserSerializer, MyProfileSerializer, \
                           UserLoginAndSignResultSerializer)
 from config.mixins import CustomResponseMixin, CustomPaginatorMixin
+from django.http import HttpResponse
 
 
 class UserViewSet(viewsets.ModelViewSet,
@@ -16,6 +17,10 @@ class UserViewSet(viewsets.ModelViewSet,
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (AllowAny,)
+
+    def create(self, request, *args, **kwargs):
+
+        return self.success()
 
     @action(detail=False, methods=['get'])
     def me(self, request, *args, **kwargs):
@@ -35,6 +40,7 @@ class UserViewSet(viewsets.ModelViewSet,
             -   code:   500
                 message: SERVER ERROR
         """
+        print(request.user)
         if not request.user.is_authenticated:
             return self.un_authorized()
 
@@ -42,6 +48,10 @@ class UserViewSet(viewsets.ModelViewSet,
             request.user, context=dict(request=request)
         )
         return self.success(results=serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def index(self, request, *args, **kwargs):
+        return HttpResponse("Hello, world. You're at the polls index.")
 
 
 class SignUpView(viewsets.ModelViewSet,
