@@ -101,32 +101,32 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        "ATOMIC_MUTATIONS": True,
-    }
-}
-
-# DB_NAME = 'spooncast'
-# DB_USER = ENV('DB_USER', raise_exception=True)
-# DB_PWD = ENV('DB_PWD', raise_exception=True)
-# DB_HOST = ENV('DB_HOST', raise_exception=True)
-# DB_PORT = 5432
-# DB_CONN_MAX_AGE = int(ENV('DB_CONN_MAX_AGE', default=50))
-
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': DB_NAME,
-#         'USER': DB_USER,
-#         'PASSWORD': DB_PWD,
-#         'HOST': DB_HOST,
-#         'PORT': DB_PORT,
-#         'CONN_MAX_AGE': DB_CONN_MAX_AGE
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#         "ATOMIC_MUTATIONS": True,
 #     }
 # }
+
+DB_NAME = ENV('DB_NAME')
+DB_USER = ENV('DB_USER', raise_exception=True)
+DB_PWD = ENV('DB_PWD', raise_exception=True)
+DB_HOST = ENV('DB_HOST', raise_exception=True)
+DB_PORT = ''
+DB_CONN_MAX_AGE = int(ENV('DB_CONN_MAX_AGE', default=50))
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': DB_NAME,
+        'USER': DB_USER,
+        'PASSWORD': DB_PWD,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
+        'CONN_MAX_AGE': DB_CONN_MAX_AGE
+    }
+}
 
 
 # Password validation
@@ -220,6 +220,8 @@ CACHES = {
         }
     }
 }
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 
 ###########################

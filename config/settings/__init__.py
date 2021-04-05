@@ -15,4 +15,3 @@ if RUN_MODE == 'test':
 
 else:
     raise Exception('RUN_MODE is invalid {}. This is critical Exception! '.format(RUN_MODE))
-
