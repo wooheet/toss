@@ -94,17 +94,14 @@ class AuthAPITestCase(APITestCase):
         nickname = kwargs.get("nickname", "name")
 
         client = APIClient()
-        client.credentials()
+        client.credentials(HTTP_USER_AGENT="AuthServer")
 
         pre_signup_data = self._make_pre_signup_data(nickname)
-
-        res = client.get(reverse("user-me"))
 
         res = client.post(
             reverse("user-list"),
             pre_signup_data,
-            format="json",
-            HTTP_X_FORWARDED_HOST='settings.URL_WEB',
+            format="json"
         )
 
         user_id = res.data.get("results")[0].get("user_id")
