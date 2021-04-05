@@ -40,7 +40,7 @@ class UserViewSet(viewsets.ModelViewSet,
             -   code:   500
                 message: SERVER ERROR
         """
-        print(request.user)
+
         if not request.user.is_authenticated:
             return self.un_authorized()
 

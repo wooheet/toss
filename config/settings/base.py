@@ -76,6 +76,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'config.middleware.ServerMaintenanceMiddleware',
+    'config.middleware.UAValidateMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -101,14 +103,6 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#         "ATOMIC_MUTATIONS": True,
-#     }
-# }
-
 DB_NAME = ENV('DB_NAME')
 DB_USER = ENV('DB_USER', raise_exception=True)
 DB_PWD = ENV('DB_PWD', raise_exception=True)
@@ -124,7 +118,10 @@ DATABASES = {
         'PASSWORD': DB_PWD,
         'HOST': DB_HOST,
         'PORT': DB_PORT,
-        'CONN_MAX_AGE': DB_CONN_MAX_AGE
+        'CONN_MAX_AGE': DB_CONN_MAX_AGE,
+        'TEST': {
+            'NAME': 'test_finance',
+        },
     }
 }
 
@@ -223,6 +220,20 @@ CACHES = {
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
+ACTION_LOGGER_NAME = 'action'
+
+MAINTENANCE_HTTP_STATUS_CODE = ENV('MAINTENANCE_HTTP_STATUS_CODE', 503)
+MAINTENANCE_STATUS = ENV('MAINTENANCE_STATUS', 503)
+MAINTENANCE_SUBJECT = ENV('MAINTENANCE_SUBJECT', None)
+MAINTENANCE_CONTENTS = ENV('MAINTENANCE_CONTENTS', None)
+
+###########################
+# DJANGO REST FRAMEWORK   #
+###########################
+REST_DEFAULT_AUTHENTICATION_CLASSES = (
+    'config.authentication.CustomJwtTokenAuthentication',
+    'config.authentication.CustomTokenAuthentication',
+)
 
 ###########################
 # Auth Key                #
