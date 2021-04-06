@@ -102,7 +102,7 @@ class SignUpView(viewsets.ModelViewSet,
     permission_classes = (AllowAny,)
     serializer_class = UserSerializer
 
-    def post(self, request, format=None):
+    def create(self, request, *args, **kwargs):
         """
             New 사용자 가입 SignUp API
         ---

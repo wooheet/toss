@@ -109,6 +109,14 @@ DB_HOST = ENV('DB_HOST', raise_exception=True)
 DB_PORT = ''
 DB_CONN_MAX_AGE = int(ENV('DB_CONN_MAX_AGE', default=50))
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        "ATOMIC_MUTATIONS": True,
+    }
+}
+
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',

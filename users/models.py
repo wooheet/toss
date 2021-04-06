@@ -33,7 +33,6 @@ class User(AbstractUser, core_models.TimeStampedModel):
     objects = db.BaseUserManager()
 
     @classmethod
-    @transaction.atomic
     def pre_signup(cls, params):
         nickname = params.get('nickname', None)
         first_name = params.get('first_name', '')
@@ -48,38 +47,25 @@ class User(AbstractUser, core_models.TimeStampedModel):
         if len(first_name) > 30:
             first_name = first_name[:30]
 
-        # try:
-        #     with transaction.atomic():
-        #         signup_user = cls.objects.create(
-        #             first_name=first_name, last_name=last_name,
-        #             username=username, email=email
-        #         )
-        #
-        #         if not nickname:
-        #             nickname = DefaultNickname.get_default_nickname()
-        #
-        #         Profile.objects.create(
-        #             user=signup_user, nickname=nickname, tag=signup_user.get_tag(),
-        #             profile_url=profile_url, country='kr'
-        #         )
-        #
-        # except ValidationError:
-        #     raise ValidationError('User data is invalid.')
-        # except IntegrityError:
-        #     signup_user = cls.objects.get(username=username)
+        try:
+            with transaction.atomic():
+                signup_user = cls.objects.create(
+                    first_name=first_name, last_name=last_name,
+                    username=username, email=email
+                )
 
-        signup_user = cls.objects.create(
-            first_name=first_name, last_name=last_name,
-            username=username, email=email
-        )
+                if not nickname:
+                    nickname = DefaultNickname.get_default_nickname()
 
-        if not nickname:
-            nickname = DefaultNickname.get_default_nickname()
+                Profile.objects.create(
+                    user=signup_user, nickname=nickname, tag=signup_user.get_tag(),
+                    profile_url=profile_url, country='kr'
+                )
 
-        Profile.objects.create(
-            user=signup_user, nickname=nickname, tag=signup_user.get_tag(),
-            profile_url=profile_url, country='kr'
-        )
+        except ValidationError:
+            raise ValidationError('User data is invalid.')
+        except IntegrityError:
+            signup_user = cls.objects.get(username=username)
 
         return signup_user
 
