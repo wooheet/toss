@@ -1,11 +1,13 @@
 import copy
 import logging
 from django.shortcuts import render
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import viewsets, mixins, views
 from rest_framework.decorators import action
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import User
+from .models import User, Profile
 from .serializers import (UserSerializer, MyProfileSerializer, \
                           UserLoginAndSignResultSerializer)
 from config.mixins import CustomResponseMixin, CustomPaginatorMixin
@@ -25,6 +27,7 @@ class UserViewSet(viewsets.ModelViewSet,
     def create(self, request, *args, **kwargs):
         """
              Auth Server 사용자 가입 Pnd SignUp API
+             Pre validation check
          ---
          responseMessages:
              -   code:   200
@@ -50,8 +53,7 @@ class UserViewSet(viewsets.ModelViewSet,
                 pnd_signup_user = User.pre_signup(params)
 
                 data = {
-                    'user_id': pnd_signup_user.id,
-                    'status': pnd_signup_user.status
+                    'user_id': pnd_signup_user.id
                 }
 
             else:
@@ -91,18 +93,12 @@ class UserViewSet(viewsets.ModelViewSet,
         )
         return self.success(results=serializer.data)
 
-    @action(detail=False, methods=['get'])
-    def index(self, request, *args, **kwargs):
-        return HttpResponse("Hello, world. You're at the polls index.")
 
-
-class SignUpView(viewsets.ModelViewSet,
-                 CustomResponseMixin,
-                 CustomPaginatorMixin):
+class SignUpView(views.APIView, CustomResponseMixin):
     permission_classes = (AllowAny,)
     serializer_class = UserSerializer
 
-    def create(self, request, *args, **kwargs):
+    def post(self, request, format=None):
         """
             New 사용자 가입 SignUp API
         ---
@@ -131,10 +127,17 @@ class SignUpView(viewsets.ModelViewSet,
                 return self.un_authorized()
 
             data_copy = copy.deepcopy(request.data)
+            LOG(request=request, event='USER_SIGN', data=dict(extra=data_copy))
 
-            serializer = UserLoginAndSignResultSerializer(
-                context=dict(request=request)
+            profile = user.profile
+
+            profile = Profile(
+                nickname=profile.nickname,
             )
+
+            signup_user = User.post_signup(request)
+
+            serializer = UserLoginAndSignResultSerializer(signup_user)
 
         except Exception as e:
             return self.server_exception()

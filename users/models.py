@@ -58,14 +58,21 @@ class User(AbstractUser, core_models.TimeStampedModel):
                     nickname = DefaultNickname.get_default_nickname()
 
                 Profile.objects.create(
-                    user=signup_user, nickname=nickname, tag=signup_user.get_tag(),
-                    profile_url=profile_url, country='kr'
+                    user=signup_user, nickname=nickname,
+                    profile_url=profile_url, country='KR'
                 )
 
         except ValidationError:
             raise ValidationError('User data is invalid.')
         except IntegrityError:
             signup_user = cls.objects.get(username=username)
+
+        return signup_user
+
+    @classmethod
+    @transaction.atomic
+    def post_signup(cls, request):
+        signup_user = request.user
 
         return signup_user
 
@@ -90,7 +97,6 @@ class Profile(models.Model):
     user = models.OneToOneField('users.User', on_delete=models.CASCADE,
                                 unique=True, related_name='profile')
     nickname = models.CharField(max_length=100)
-    tag = models.CharField(max_length=15, null=True, unique=True)
     description = models.CharField(max_length=200, default='', blank=True,
                                    help_text='Note: 사용자 프로필 추가 정보')
     gender = models.IntegerField(default=Gender.UNKNOWN.value,

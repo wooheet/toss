@@ -16,14 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.authtoken.views import obtain_auth_token
-from graphene_django.views import GraphQLView
-from django.views.decorators.csrf import csrf_exempt
-
+from users import views as user_view
 
 urlpatterns = [
     path(r'admin/', admin.site.urls),
-    path(r'users/', include('users.urls')),
     path(r'auth/', obtain_auth_token),
-    path(r'graphql/', csrf_exempt(GraphQLView.as_view(graphiql=True))) # GraphQLView 클래스에 dispatch 함수가 ensure_csrf_cookie 데코레이터를 통해 CSRF 토큰을 강제하고 있기 때문에 이를 우회하기 위한 방법이다.
+    path(r'users/', include('users.urls')),
+    path(r'signup/', user_view.SignUpView.as_view(),
+         name='user-signup'),
 ]
 

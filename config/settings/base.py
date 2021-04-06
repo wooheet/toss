@@ -132,16 +132,6 @@ DATABASES = {
 #     }
 # }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': DB_NAME,
-#         'USER': DB_USER,
-#         'PASSWORD': DB_PWD,
-#         'HOST': DB_HOST,
-#         'PORT': '3306',
-#     }
-# }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -161,10 +151,19 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+###########################
+# DJANGO REST FRAMEWORK   #
+###########################
+REST_DEFAULT_AUTHENTICATION_CLASSES = (
+    'config.authentication.CustomJwtTokenAuthentication',
+    'config.authentication.CustomTokenAuthentication',
+)
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ]
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': REST_DEFAULT_AUTHENTICATION_CLASSES,
 }
 
 # Internationalization
@@ -233,13 +232,6 @@ MAINTENANCE_STATUS = ENV('MAINTENANCE_STATUS', 503)
 MAINTENANCE_SUBJECT = ENV('MAINTENANCE_SUBJECT', None)
 MAINTENANCE_CONTENTS = ENV('MAINTENANCE_CONTENTS', None)
 
-###########################
-# DJANGO REST FRAMEWORK   #
-###########################
-REST_DEFAULT_AUTHENTICATION_CLASSES = (
-    'config.authentication.CustomJwtTokenAuthentication',
-    'config.authentication.CustomTokenAuthentication',
-)
 
 ###########################
 # Auth Key                #

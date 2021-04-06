@@ -4,7 +4,7 @@ import re
 from django.conf import settings
 from django.http import JsonResponse
 
-from .log import LOG
+from config.log import LOG
 
 logger = logging.getLogger(__name__)
 
@@ -13,9 +13,6 @@ REG_UA_PREFIX = r'(Toss|Apache-HttpClient|TOssWebServer|nginx-rtmp)'
 REG_UA_MODULE = r'(nginx|requests|WebServer|AuthServer'\
                 r'|Dalvik|CFNetwork|\(Java)\/[a-zA-Z0-9._;\(\)\+\- ]+'
 
-
-EXCEPT_PATH = ['/health/', '/lives/wowza/']
-# TRUSTED_SITES = [settings.URL_WEB, settings.URL_WEB_LOCALIZED]
 
 REG_UA_GENERAL = re.compile(
     f'{REG_UA_PREFIX}\/{REG_VER_NO} {REG_UA_MODULE}')
@@ -73,10 +70,6 @@ class UAValidateMiddleware(object):
     def __call__(self, request):
 
         try:
-            for path in EXCEPT_PATH:
-                if request.path == path:
-                    return self.get_response(request)
-
             try:
                 _user_agent = request.META["HTTP_USER_AGENT"]
             except KeyError:

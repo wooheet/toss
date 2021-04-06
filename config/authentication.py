@@ -7,7 +7,6 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework import exceptions
 from rest_framework.authentication import (TokenAuthentication,
                                            get_authorization_header)
-from users.models import User
 
 logger = logging.getLogger(__name__)
 
@@ -39,9 +38,6 @@ class CustomJwtTokenAuthentication(TokenAuthentication):
 
     keyword = 'Bearer'
     ALLOW_PND_USER_APIS = ['signup', 'signin']
-
-    def __init__(self):
-        self.user = User.objects.get(id=self.user_id)
 
     def get_path_info(self, request):
         path_info = request.META.get('PATH_INFO', None)
@@ -86,6 +82,9 @@ class CustomJwtTokenAuthentication(TokenAuthentication):
                 self._error_log(key)
                 raise toss_exception.AuthenticationFailed('No exp in token.')
 
+            from users.models import User
+            self.user = User.objects.get(id=self.user_id)
+
         except jwt.ExpiredSignatureError:
             logger.warning("Expired token.")
             self._error_log(key)
@@ -97,17 +96,6 @@ class CustomJwtTokenAuthentication(TokenAuthentication):
         except Exception as e:
             logger.error(f'key {key} e {e}', exc_info=True)
             raise toss_exception.AuthJWTTokenServerError(_('Exceptions.'))
-
-        # if self.user.status == User.Status.LEAVED.value:
-        #     raise toss_exception.AuthenticationFailed(
-        #         _('User inactive or deleted.'))
-        # elif self.user.status == User.Status.BANNED.value:
-        #     raise toss_exception.AuthenticationFailed(
-        #         _('User banned.'))
-        # elif self.user.status == User.Status.SIGNUP_PND.value:
-        #     if self.path_info not in CustomJwtTokenAuthentication.ALLOW_PND_USER_APIS:
-        #         raise toss_exception.AuthenticationFailed(
-        #         _('Not allowed pnd user.'))
 
         return self.user, None
 
@@ -122,4 +110,3 @@ class CustomJwtTokenAuthentication(TokenAuthentication):
     def _jwt_token_validator(self, key, verify=True):
         return jwt.decode(key, settings.AUTH_SERVER_PUB_KEY,
                           algorithms=['RS256'], verify=verify)
-
