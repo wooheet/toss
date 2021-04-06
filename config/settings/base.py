@@ -109,28 +109,28 @@ DB_HOST = ENV('DB_HOST', raise_exception=True)
 DB_PORT = ''
 DB_CONN_MAX_AGE = int(ENV('DB_CONN_MAX_AGE', default=50))
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        "ATOMIC_MUTATIONS": True,
-    }
-}
-
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': DB_NAME,
-#         'USER': DB_USER,
-#         'PASSWORD': DB_PWD,
-#         'HOST': DB_HOST,
-#         'PORT': DB_PORT,
-#         'CONN_MAX_AGE': DB_CONN_MAX_AGE,
-#         'TEST': {
-#             'NAME': 'test_finance',
-#         },
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#         "ATOMIC_MUTATIONS": True,
 #     }
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': DB_NAME,
+        'USER': DB_USER,
+        'PASSWORD': DB_PWD,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
+        'CONN_MAX_AGE': DB_CONN_MAX_AGE,
+        'TEST': {
+            'NAME': 'test_finance',
+        },
+    }
+}
 
 
 # Password validation
@@ -193,23 +193,6 @@ CORS_ORIGIN_WHITELIST = [
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
-
-GRAPHQL_JWT = {
-    "JWT_VERIFY_EXPIRATION": True,
-    "JWT_LONG_RUNNING_REFRESH_TOKEN": True,
-    "JWT_ALLOW_ANY_CLASSES": [
-        "graphql_auth.mutations.Register",
-        "graphql_auth.mutations.VerifyAccount",
-        "graphql_auth.mutations.ResendActivationEmail",
-        "graphql_auth.mutations.SendPasswordResetEmail",
-        "graphql_auth.mutations.PasswordReset",
-        "graphql_auth.mutations.ObtainJSONWebToken",
-        "graphql_auth.mutations.VerifyToken",
-        "graphql_auth.mutations.RefreshToken",
-        "graphql_auth.mutations.RevokeToken",
-        "graphql_auth.mutations.VerifySecondaryEmail",
-    ],
-}
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
