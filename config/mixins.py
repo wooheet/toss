@@ -8,6 +8,19 @@ from .pagenation import CustomCursorPagination
 logger = logging.getLogger(__name__)
 
 
+class ReadReplicaRoutingMixin(object):
+
+    def read(self, nocache=True):
+        if settings.DB_ALIAS_REPLICA in settings.DATABASES:
+            queryset = self.using(settings.DB_ALIAS_REPLICA)
+        else:
+            queryset = self
+
+        if nocache:
+            queryset = queryset.nocache()
+        return queryset
+
+
 class CustomResponseMixin(object):
 
     def _validation_error(self, error):

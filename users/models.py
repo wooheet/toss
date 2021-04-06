@@ -6,23 +6,15 @@ from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 from django.db import models, transaction, IntegrityError
 from core import models as core_models
-from django.core.exceptions import (
-    ObjectDoesNotExist, MultipleObjectsReturned, ValidationError
-)
+from django.core.exceptions import ValidationError
 from config.utils import ChoiceEnum
-
-# from Config import db
+from config import db
 
 logger = logging.getLogger(__name__)
 
 
 class User(AbstractUser, core_models.TimeStampedModel):
     """ Custom User Model """
-
-    class Gender(ChoiceEnum):
-        GENDER_MALE = "male"
-        GENDER_FEMALE = "female"
-        GENDER_OTHER = "other"
 
     class Language(ChoiceEnum):
         LANGUAGE_ENGLISH = "en"
@@ -32,40 +24,23 @@ class User(AbstractUser, core_models.TimeStampedModel):
         CURRENCY_USD = "USD"
         CURRENCY_KRW = "KRW"
 
-    class Status(ChoiceEnum):
-        BANNED = -9
-        SIGNUP_PND = -3
-        LEAVED = -2
-        DORMANT = -1
-        LOGOUT = 0
-        LOGIN = 1
-
-    avatar = models.ImageField(upload_to="avatars", blank=True)
-    gender = models.CharField(choices=Gender.choices(), max_length=10, blank=True)
-    bio = models.TextField(blank=True)
-    birthdate = models.DateField(blank=True, null=True)
-    language = models.CharField(choices=Language.choices(), max_length=2, blank=True)
-    currency = models.CharField(choices=Currency.choices(), max_length=3, blank=True)
-    superhost = models.BooleanField(default=False)
-    # status = models.IntegerField(
-    #     default=0, choices=Status.choices(), null=True, blank=True,
-    #     help_text='유저상태'
-    # )
+    language = models.CharField(choices=Language.choices(), max_length=2, blank=True, null=True)
+    currency = models.CharField(choices=Currency.choices(), max_length=3, blank=True, null=True)
 
     USERNAME_FIELD = "username"  # e.g: "username", "email"
     EMAIL_FIELD = "email"  # e.g: "email", "primary_email"
 
-    # objects = db.BaseUserManager()
+    objects = db.BaseUserManager()
 
     @classmethod
+    @transaction.atomic
     def pre_signup(cls, params):
         nickname = params.get('nickname', None)
         first_name = params.get('first_name', '')
         last_name = params.get('last_name', '')
         email = params.get('email', '')
         profile_url = params.get('profile_url')
-        username = params.get('tid', f'{nickname}.'
-                                     f'{str(timezone.now().timestamp())[3:]}')
+        username = f'{nickname}{str(timezone.now().timestamp())}'
 
         if profile_url is not None and len(profile_url) > 255:
             profile_url = None
@@ -73,31 +48,38 @@ class User(AbstractUser, core_models.TimeStampedModel):
         if len(first_name) > 30:
             first_name = first_name[:30]
 
-        try:
-            with transaction.atomic():
-                # signup_user = cls.objects.create(
-                #     first_name=first_name, last_name=last_name,
-                #     username=username, email=email,
-                #     status=User.Status.SIGNUP_PND.value
-                # )
+        # try:
+        #     with transaction.atomic():
+        #         signup_user = cls.objects.create(
+        #             first_name=first_name, last_name=last_name,
+        #             username=username, email=email
+        #         )
+        #
+        #         if not nickname:
+        #             nickname = DefaultNickname.get_default_nickname()
+        #
+        #         Profile.objects.create(
+        #             user=signup_user, nickname=nickname, tag=signup_user.get_tag(),
+        #             profile_url=profile_url, country='kr'
+        #         )
+        #
+        # except ValidationError:
+        #     raise ValidationError('User data is invalid.')
+        # except IntegrityError:
+        #     signup_user = cls.objects.get(username=username)
 
-                signup_user = cls.objects.create(
-                    first_name=first_name, last_name=last_name,
-                    username=username, email=email
-                )
+        signup_user = cls.objects.create(
+            first_name=first_name, last_name=last_name,
+            username=username, email=email
+        )
 
-                if not nickname:
-                    nickname = DefaultNickname.get_default_nickname()
+        if not nickname:
+            nickname = DefaultNickname.get_default_nickname()
 
-                Profile.objects.create(
-                    user=signup_user, nickname=nickname, tag=signup_user.get_tag(),
-                    profile_url=profile_url, country='kr'
-                )
-
-        except ValidationError:
-            raise ValidationError('User data is invalid.')
-        except IntegrityError:
-            signup_user = cls.objects.get(username=username)
+        Profile.objects.create(
+            user=signup_user, nickname=nickname, tag=signup_user.get_tag(),
+            profile_url=profile_url, country='kr'
+        )
 
         return signup_user
 
@@ -136,7 +118,7 @@ class Profile(models.Model):
                                help_text='Country code')
     created = models.DateTimeField(default=timezone.now, blank=True, null=True)
 
-    # objects = db.BaseManager()
+    objects = db.BaseManager()
 
 
 class DefaultNickname(models.Model):
@@ -149,7 +131,7 @@ class DefaultNickname(models.Model):
     gender = models.IntegerField(default=0)
     created = models.DateTimeField(default=timezone.now)
 
-    # objects = db.BaseManager()
+    objects = db.BaseManager()
 
     @classmethod
     def get_prefix(cls):

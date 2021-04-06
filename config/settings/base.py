@@ -53,9 +53,6 @@ DJANGO_APPS = [
     'rest_framework.authtoken',
     'rest_framework',
     'corsheaders',
-    'graphene_django',
-    'graphql_jwt.refresh_token.apps.RefreshTokenConfig',
-    "graphql_auth",
     'django_filters'
 ]
 
@@ -75,7 +72,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'config.middleware.ServerMaintenanceMiddleware',
     'config.middleware.UAValidateMiddleware',
 ]
@@ -103,6 +99,9 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
+DB_ALIAS_REPLICA = 'replica'
+DB_HOST_REPLICA = ENV('DB_HOST_REPLICA')
+
 DB_NAME = ENV('DB_NAME')
 DB_USER = ENV('DB_USER', raise_exception=True)
 DB_PWD = ENV('DB_PWD', raise_exception=True)
@@ -110,21 +109,31 @@ DB_HOST = ENV('DB_HOST', raise_exception=True)
 DB_PORT = ''
 DB_CONN_MAX_AGE = int(ENV('DB_CONN_MAX_AGE', default=50))
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': DB_NAME,
-        'USER': DB_USER,
-        'PASSWORD': DB_PWD,
-        'HOST': DB_HOST,
-        'PORT': DB_PORT,
-        'CONN_MAX_AGE': DB_CONN_MAX_AGE,
-        'TEST': {
-            'NAME': 'test_finance',
-        },
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': DB_NAME,
+#         'USER': DB_USER,
+#         'PASSWORD': DB_PWD,
+#         'HOST': DB_HOST,
+#         'PORT': DB_PORT,
+#         'CONN_MAX_AGE': DB_CONN_MAX_AGE,
+#         'TEST': {
+#             'NAME': 'test_finance',
+#         },
+#     }
+# }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': DB_NAME,
+#         'USER': DB_USER,
+#         'PASSWORD': DB_PWD,
+#         'HOST': DB_HOST,
+#         'PORT': '3306',
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -174,19 +183,8 @@ CORS_ORIGIN_WHITELIST = [
     "http://localhost:3000",
 ]
 
-GRAPHENE = {
-    'SCHEMA': 'config.schema.schema',
-    "ATOMIC_MUTATIONS": True,
-    'MIDDLEWARE': (
-        'graphene_django.debug.DjangoDebugMiddleware',
-        'graphql_jwt.middleware.JSONWebTokenMiddleware',
-    )
-}
-
 AUTHENTICATION_BACKENDS = [
-    # 'graphql_jwt.backends.JSONWebTokenBackend',
     'django.contrib.auth.backends.ModelBackend',
-    "graphql_auth.backends.GraphQLAuthBackend",
 ]
 
 GRAPHQL_JWT = {
