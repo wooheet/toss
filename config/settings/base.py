@@ -156,13 +156,13 @@ AUTH_PASSWORD_VALIDATORS = [
 ###########################
 REST_DEFAULT_AUTHENTICATION_CLASSES = (
     'config.authentication.CustomJwtTokenAuthentication',
-    'config.authentication.CustomTokenAuthentication',
 )
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ],
+    'EXCEPTION_HANDLER': 'config.utils.custom_exception_handler',
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
     'DEFAULT_AUTHENTICATION_CLASSES': REST_DEFAULT_AUTHENTICATION_CLASSES,
 }
 

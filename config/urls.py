@@ -22,7 +22,7 @@ urlpatterns = [
     path(r'admin/', admin.site.urls),
     path(r'auth/', obtain_auth_token),
     path(r'users/', include('users.urls')),
-    path(r'signup/', user_view.SignUpView.as_view(),
-         name='user-signup'),
+    path(r'signup/', user_view.SignUpView.as_view(), name='user-signup'),
+    path(r'signin/', user_view.SignInView.as_view(), name='user-signin'),
 ]
 

@@ -1,18 +1,5 @@
 from enum import Enum
-from graphql_relay.node.node import from_global_id
-
-DEFAULT_DB_ALIAS = 'default'
-
-
-def input_to_dictionary(input):
-    """Method to convert Graphene inputs into dictionary."""
-    dictionary = {}
-    for key in input:
-        # Convert GraphQL global id to database id
-        if key[-2:] == 'id' and input[key] != 'unknown':
-            input[key] = from_global_id(input[key])[1]
-        dictionary[key] = input[key]
-    return dictionary
+from rest_framework.views import exception_handler
 
 
 class ChoiceEnum(Enum):
@@ -27,3 +14,14 @@ class ChoiceEnum(Enum):
     @classmethod
     def get_keys(cls):
         return [x.name for x in cls]
+
+
+def custom_exception_handler(exc, context):
+    # Call REST framework's default exception handler first,
+    # to get the standard error response.
+    response = exception_handler(exc, context)
+
+    # Now add the HTTP status code to the response.
+    if response is not None:
+        response.data['status_code'] = response.status_code
+    return response

@@ -143,3 +143,58 @@ class SignUpView(views.APIView, CustomResponseMixin):
             return self.server_exception()
 
         return self.success(results=serializer.data)
+
+
+class SignInView(views.APIView, CustomResponseMixin):
+    permission_classes = (AllowAny,)
+
+    def post(self, request, format=None):
+
+        """
+            New 사용자 SignIn API 사용자 가입 여부 확인 및 가입 정보 전달
+        ---
+        response_serializer: users.serializers.UserLoginAndSignResultSerializer
+        parameters:
+            - name: body
+              pytype: users.serializers.UserIdTokenLoginSerializer
+              paramType: body
+        responseMessages:
+            -   code:   200
+                message: SUCCESS
+            -   code:   400
+                message: BAD REQUEST. (파라미터가 유효하지 않음)
+            -   code:   403
+                message: FORBIDDEN. (제재 사용자)
+            -   code:   500
+                message: SERVER ERROR
+        """
+        try:
+
+            data_copy = copy.deepcopy(request.data)
+            LOG(request=request, event='USER_LOGIN',
+                data=dict(extra=data_copy))
+
+            login_user = request.user
+
+            if not login_user.is_authenticated:
+                return self.un_authorized()
+
+            # Auth SignUp 절차가 완료되지 않았다.
+            # if login_user.user_signin_status_check_and_fix():
+            #     result = get_login_result_message(
+            #         result_code=AUTH_NOT_FOUND)
+            #     return self.success(results=result)
+
+            user_data = UserLoginAndSignResultSerializer(login_user).data
+
+        except ValueError as e:
+            logger.error(e, exc_info=True)
+            return self.bad_request()
+
+        except Exception as e:
+            logger.error(e, exc_info=True)
+            return self.server_exception()
+
+        LOG(request=request, event='USER_LOGIN_COMPLETE',
+            data=dict(extra=data_copy))
+        return self.success(results=user_data)

@@ -11,33 +11,9 @@ from rest_framework.authentication import (TokenAuthentication,
 logger = logging.getLogger(__name__)
 
 
-class CustomTokenAuthentication(TokenAuthentication):
-
-    def authenticate_credentials(self, key):
-        model = self.get_model()
-
-        try:
-            queryset = model.objects.prefetch_related('user')
-            token = queryset.get(key=key)
-
-        except model.DoesNotExist:
-            try:
-                logger.warning("Invalid Token : {}".format(key))
-            except exceptions:
-                logger.exception('Invalid Key Info')
-
-            raise toss_exception.AuthenticationFailed(_('Invalid token.'))
-
-        if token.user.status < 0:
-            raise toss_exception.AuthenticationFailed(_('User inactive or deleted.'))
-
-        return token.user, token
-
-
 class CustomJwtTokenAuthentication(TokenAuthentication):
 
     keyword = 'Bearer'
-    ALLOW_PND_USER_APIS = ['signup', 'signin']
 
     def get_path_info(self, request):
         path_info = request.META.get('PATH_INFO', None)
