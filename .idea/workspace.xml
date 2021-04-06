@@ -38,12 +38,7 @@
   <component name="ChangeListManager">
     <list default="true" id="5b2d198d-d24e-4deb-a780-e40c15182675" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/authentication.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/authentication.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/settings/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/settings/base.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/users/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/users/tests.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/users/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/users/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/db.py" beforeDir="false" afterPath="$PROJECT_DIR$/config/db.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -142,11 +137,11 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="727" y="239" width="778" height="623" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1617726363473">
+    <state x="434" y="140" width="1071" height="722" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1617726754881">
       <screen x="0" y="0" width="1792" height="1120" />
     </state>
     <state x="447" y="309" width="1071" height="800" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1792.1120/218.-768.1360.768@0.0.1792.1120" timestamp="1617631984720" />
-    <state x="727" y="239" width="778" height="623" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1792.1120@0.0.1792.1120" timestamp="1617726363473" />
+    <state x="434" y="140" width="1071" height="722" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1792.1120@0.0.1792.1120" timestamp="1617726754881" />
     <state x="2431" y="397" key="#com.intellij.execution.impl.EditConfigurationsDialog/4352.165.1920.1080/1792.0.2560.1440/0.0.1792.1120@1792.0.2560.1440" timestamp="1617668389376" />
     <state x="308" y="0" width="817" height="974" key="EnvironmentVariablesDialog" timestamp="1617631971939">
       <screen x="0" y="0" width="1792" height="1120" />
@@ -253,10 +248,10 @@
     </state>
     <state width="896" height="573" key="XDebugger.FullValuePopup/0.0.1792.1120@0.0.1792.1120" timestamp="1617718622805" />
     <state width="896" height="573" key="XDebugger.FullValuePopup/0.25.1792.1095@0.25.1792.1095" timestamp="1617680774948" />
-    <state x="597" y="315" width="597" height="490" key="find.popup" timestamp="1617723673293">
+    <state x="597" y="315" width="597" height="490" key="find.popup" timestamp="1617726922055">
       <screen x="0" y="0" width="1792" height="1120" />
     </state>
-    <state x="597" y="315" width="597" height="490" key="find.popup/0.0.1792.1120@0.0.1792.1120" timestamp="1617723673293" />
+    <state x="597" y="315" width="597" height="490" key="find.popup/0.0.1792.1120@0.0.1792.1120" timestamp="1617726922055" />
     <state x="561" y="251" width="670" height="676" key="search.everywhere.popup" timestamp="1617633156712">
       <screen x="0" y="0" width="1792" height="1120" />
     </state>

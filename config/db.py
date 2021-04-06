@@ -13,15 +13,13 @@ def get_connection(is_replica=False):
     return connections[db_alias_name]
 
 
-class BaseManager(models.Manager,
-                  ReadReplicaRoutingMixin):
+class BaseManager(models.Manager, ReadReplicaRoutingMixin):
 
     def __init__(self):
         super().__init__()
 
 
-class BaseUserManager(UserManager,
-                      ReadReplicaRoutingMixin):
+class BaseUserManager(UserManager, ReadReplicaRoutingMixin):
 
     def __init__(self):
         super().__init__()
@@ -32,7 +30,7 @@ class DatabaseRouter:
     @staticmethod
     def db_for_read(model, **hints):
         conn = transaction.get_connection(using=settings.DB_ALIAS_WRITE)
-        if conn.in_atomic_block or model._meta.app_label == 'billings':
+        if conn.in_atomic_block:
             return settings.DB_ALIAS_WRITE
         return settings.READ_DB_ALIAS
 
