@@ -44,16 +44,12 @@ class UserViewSet(viewsets.ModelViewSet,
             LOG(request=request, event='USER_NEW_SIGN_PND',
                 data=dict(extra=data_copy))
 
-            p = request.data.get('profile', None)
+            params = request.data.get('profile', None)
 
-            if p:
-                did = request.data.get('did', None)
-                tid = request.data.get('tid')
-
+            if params:
                 pnd_signup_user = User.pre_signup(params)
 
                 data = {
-                    'tid': tid,
                     'user_id': pnd_signup_user.id,
                     'status': pnd_signup_user.status
                 }

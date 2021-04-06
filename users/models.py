@@ -1,61 +1,71 @@
+import random
+import logging
+
+from django.utils import crypto
+from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 from django.db import models, transaction, IntegrityError
 from core import models as core_models
 from django.core.exceptions import (
     ObjectDoesNotExist, MultipleObjectsReturned, ValidationError
 )
+from config.utils import ChoiceEnum
+
+# from Config import db
+
+logger = logging.getLogger(__name__)
 
 
 class User(AbstractUser, core_models.TimeStampedModel):
     """ Custom User Model """
 
-    GENDER_MALE = "male"
-    GENDER_FEMALE = "female"
-    GENDER_OTHER = "other"
+    class Gender(ChoiceEnum):
+        GENDER_MALE = "male"
+        GENDER_FEMALE = "female"
+        GENDER_OTHER = "other"
 
-    GENDER_CHOICES = (
-        (GENDER_MALE, "Male"),
-        (GENDER_FEMALE, "Female"),
-        (GENDER_OTHER, "Other"),
-    )
+    class Language(ChoiceEnum):
+        LANGUAGE_ENGLISH = "en"
+        LANGUAGE_KOREAN = "kr"
 
-    LANGUAGE_ENGLISH = "en"
-    LANGUAGE_KOREAN = "kr"
+    class Currency(ChoiceEnum):
+        CURRENCY_USD = "USD"
+        CURRENCY_KRW = "KRW"
 
-    LANGUAGE_CHOICES = ((LANGUAGE_ENGLISH, "English"),
-                        (LANGUAGE_KOREAN, "Korean"))
-
-    CURRENCY_USD = "usd"
-    CURRENCY_KRW = "krw"
-
-    CURRENCY_CHOICES = ((CURRENCY_USD, "USD"), (CURRENCY_KRW, "KRW"))
+    class Status(ChoiceEnum):
+        BANNED = -9
+        SIGNUP_PND = -3
+        LEAVED = -2
+        DORMANT = -1
+        LOGOUT = 0
+        LOGIN = 1
 
     avatar = models.ImageField(upload_to="avatars", blank=True)
-    gender = models.CharField(choices=GENDER_CHOICES, max_length=10, blank=True)
+    gender = models.CharField(choices=Gender.choices(), max_length=10, blank=True)
     bio = models.TextField(blank=True)
     birthdate = models.DateField(blank=True, null=True)
-    language = models.CharField(choices=LANGUAGE_CHOICES, max_length=2, blank=True)
-    currency = models.CharField(choices=CURRENCY_CHOICES, max_length=3, blank=True)
+    language = models.CharField(choices=Language.choices(), max_length=2, blank=True)
+    currency = models.CharField(choices=Currency.choices(), max_length=3, blank=True)
     superhost = models.BooleanField(default=False)
-    email = models.EmailField(blank=False, max_length=254, verbose_name="email address")
+    # status = models.IntegerField(
+    #     default=0, choices=Status.choices(), null=True, blank=True,
+    #     help_text='유저상태'
+    # )
 
     USERNAME_FIELD = "username"  # e.g: "username", "email"
     EMAIL_FIELD = "email"  # e.g: "email", "primary_email"
 
+    # objects = db.BaseUserManager()
+
     @classmethod
     def pre_signup(cls, params):
-        # SpoonUser / Profile 만 생성
-        # 성별 / 생년월일은 나중에 post_signup 때 data 가 들어옴 그래서 가입할때 None 처리
-        # nick_name 또한 post_signup 에서 data 가 들어오면 update
-        sns_type = params.get('sns_type')
-        sns_id = params.get('sns_id')
         nickname = params.get('nickname', None)
         first_name = params.get('first_name', '')
         last_name = params.get('last_name', '')
         email = params.get('email', '')
         profile_url = params.get('profile_url')
-        country = params.get('country', '')
-        username = params.get('tid', f'{sns_type}.{sns_id}')
+        username = params.get('tid', f'{nickname}.'
+                                     f'{str(timezone.now().timestamp())[3:]}')
 
         if profile_url is not None and len(profile_url) > 255:
             profile_url = None
@@ -65,23 +75,24 @@ class User(AbstractUser, core_models.TimeStampedModel):
 
         try:
             with transaction.atomic():
+                # signup_user = cls.objects.create(
+                #     first_name=first_name, last_name=last_name,
+                #     username=username, email=email,
+                #     status=User.Status.SIGNUP_PND.value
+                # )
+
                 signup_user = cls.objects.create(
                     first_name=first_name, last_name=last_name,
                     username=username, email=email
                 )
 
-                # if not nickname:
-                #     nickname = DefaultNickname.get_default_nickname()
-                #
-                # if UnfitWord.check_unfit(word=nickname, to_nickname=True):
-                #     nickname = DefaultNickname.get_default_nickname()
+                if not nickname:
+                    nickname = DefaultNickname.get_default_nickname()
 
-                # Profile 생성
-                # Profile.objects.create(
-                #     user=signup_user, nickname=nickname, tag=signup_user.get_tag(),
-                #     profile_url=profile_url, country=country,
-                #     is_public_like=False, is_public_cast_storage=False,
-                # )
+                Profile.objects.create(
+                    user=signup_user, nickname=nickname, tag=signup_user.get_tag(),
+                    profile_url=profile_url, country='kr'
+                )
 
         except ValidationError:
             raise ValidationError('User data is invalid.')
@@ -91,3 +102,81 @@ class User(AbstractUser, core_models.TimeStampedModel):
         return signup_user
 
 
+class Profile(models.Model):
+
+    class CanNotRequestVerifyBadge(Exception):
+        pass
+
+    class Gender(ChoiceEnum):
+        UNKNOWN = -1
+        MALE = 0
+        FEMALE = 1
+        PREFER_NOT_TO_SAY = 2
+
+    class VerifyStatus(ChoiceEnum):
+        REJECTED = -1
+        REQUESTED = 0
+        REVIEWING = 1
+        VERIFIED = 2
+
+    user = models.OneToOneField('users.User', on_delete=models.CASCADE,
+                                unique=True, related_name='profile')
+    nickname = models.CharField(max_length=100)
+    tag = models.CharField(max_length=15, null=True, unique=True)
+    description = models.CharField(max_length=200, default='', blank=True,
+                                   help_text='Note: 사용자 프로필 추가 정보')
+    gender = models.IntegerField(default=Gender.UNKNOWN.value,
+                                 choices=Gender.choices(),
+                                 help_text='Note: 성별')
+    date_of_birth = models.DateField(null=True,
+                                     help_text='Note: 생년월일 (예 1980.12.08')
+    profile_url = models.CharField(max_length=255, default='', null=True,
+                                   blank=True, help_text='Note: 사용자 프로필 Url')
+    country = models.CharField(max_length=4, default=None, null=True,
+                               help_text='Country code')
+    created = models.DateTimeField(default=timezone.now, blank=True, null=True)
+
+    # objects = db.BaseManager()
+
+
+class DefaultNickname(models.Model):
+    class NicknameType(ChoiceEnum):
+        PREFIX = 'prefix'
+        SUFFIX = 'sufix'
+
+    type = models.CharField(max_length=10, choices=NicknameType.choices())
+    word = models.CharField(max_length=100)
+    gender = models.IntegerField(default=0)
+    created = models.DateTimeField(default=timezone.now)
+
+    # objects = db.BaseManager()
+
+    @classmethod
+    def get_prefix(cls):
+        prefixes = cls.objects.filter(type='prefix')
+        prefix = random.choice(prefixes)
+        return prefix
+
+    @classmethod
+    def get_suffix(cls, prefix):
+        suffixes = cls.objects.filter(type='suffix', gender=prefix.gender).cache()
+        suffix = random.choice(suffixes)
+        return suffix
+
+    @classmethod
+    def get_nickname(cls):
+        try:
+            base_nickname = '{prefix} {suffix}'
+            prefix = cls.get_prefix()
+            suffix = cls.get_suffix(prefix=prefix)
+            made_nickname = base_nickname.format(prefix=prefix.word, suffix=suffix.word)
+
+        except Exception:
+            logger.exception('Default Nickname Create failed..')
+            made_nickname = crypto.get_random_string(length=12)
+
+        return made_nickname
+
+    @classmethod
+    def get_default_nickname(cls):
+        return 'toss' + str(timezone.now().timestamp())[3:]

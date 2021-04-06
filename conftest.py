@@ -82,11 +82,13 @@ class AuthAPITestCase(APITestCase):
 
     def _make_pre_signup_data(self, nickname):
         pre_signup_data = {
-            "nickname": nickname,
-            "first_name": "first_name",
-            "last_name": "last_name",
-            "profile_url": "picture",
-            "email": "{}@mail.com".format(nickname),
+            "profile": {
+                "nickname": nickname,
+                "first_name": "first_name",
+                "last_name": "last_name",
+                "profile_url": "picture",
+                "email": "{}@mail.com".format(nickname),
+            }
         }
         return pre_signup_data
 
@@ -98,11 +100,9 @@ class AuthAPITestCase(APITestCase):
 
         pre_signup_data = self._make_pre_signup_data(nickname)
 
-        res = client.post(
-            reverse("user-list"),
-            pre_signup_data,
-            format="json"
-        )
+        res = client.post(reverse("user-list"),
+                          pre_signup_data,
+                          format="json")
 
         user_id = res.data.get("results")[0].get("user_id")
 
