@@ -12,8 +12,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 import logging
-
-logger = logging.getLogger(__name__)
+from aws_secrets import AWSCredential
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -32,9 +31,13 @@ ALLOWED_HOSTS = []
 # Application definition
 
 
-def ENV(variable, default=None, raise_exception=False):
+def ENV(variable, default=None, raise_exception=False, cast_type=None):
     try:
         value = os.environ[variable]
+
+        if cast_type is not None:
+            value = cast_type(value)
+
     except KeyError as error:
         value = default
         if raise_exception:
@@ -100,7 +103,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DB_ALIAS_REPLICA = 'replica'
-DB_HOST_REPLICA = ENV('DB_HOST_REPLICA')
+DB_HOST_REPLICA = ENV('DB_HOST_REPLICA', default='localhost')
 
 DB_NAME = ENV('DB_NAME')
 DB_USER = ENV('DB_USER', raise_exception=True)
@@ -287,5 +290,17 @@ w2iF3fZW9Z8uoe8/Z0KebmeoUKw0dKoxoEHRp2XWeMTcRM+uQCVJrNv8RqbPTyno
 WoqonFyTWehJ3IZg/Nw2b5cCAwEAAQ==
 -----END PUBLIC KEY-----
 """
+
+
+###############################################################################
+# TOKEN, Hours
+###############################################################################
+JWT_EXP = ENV('JWT_EXP', cast_type=float)
+JWT_EXP_FOR_TEST_USER = ENV('JWT_EXP_FOR_TEST_USER', cast_type=float)
+JWT_REFRESH_EXP = ENV('JWT_REFRESH_EXP', cast_type=float)
+JWT_ALGORITHM = 'RS256'
+
+logger = logging.getLogger(__name__)
+
 
 COUNTRY = ENV('COUNTRY', 'KR')

@@ -1,15 +1,25 @@
+import jwt
 import base64
 import json
-from logger import Logger
-import settings
+import logging
 import secrets
-import jwt
+import aiobotocore
+from django.conf import settings
+from botocore.client import Config
 from datetime import timedelta
 from django.utils import timezone
-from helpers.session import BotoSession
 from cryptography.fernet import Fernet
 
-class JwtManager:
+logger = logging.getLogger(__name__)
+
+
+class TokenManager:
+
+    token = None
+    refresh_token = None
+    _cntry = None
+    _algorithm = None
+    _jwt_exp_timedelta = None
 
     AUTH_TYPE = 'Bearer'
 
@@ -23,8 +33,8 @@ class JwtManager:
     @classmethod
     def _validate_jwt(cls):
         # Auth 서버가 정상 기동전, 설정된 키가 유효한지 확인한다.
-        jwt = cls.create_jwt(0, 'duid')
-        cls.verify(jwt)
+        jwt_token = cls.create_jwt(0, 'duid')
+        cls.verify(jwt_token)
 
     @classmethod
     def _build_payload(cls, user_id, device_unique_id, jwt_exp_timedelta):
@@ -44,14 +54,14 @@ class JwtManager:
 
     @classmethod
     def create_refresh_token(cls):
-        return secrets.token_urlsafe(32)
+        cls.refresh_token = secrets.token_urlsafe(32)
+        return cls.refresh_token
 
     @classmethod
-    def create_jwt(
-        cls, user_id, device_unique_id, jwt_exp_timedelta=None, headers=None
-    ):
+    def create_jwt(cls, user_id, device_unique_id,
+                   jwt_exp_timedelta=None, headers=None):
         """
-        Return jwt and refresh token
+            Return jwt and refresh token
         """
         if headers is None:
             headers = {}
@@ -70,16 +80,18 @@ class JwtManager:
             algorithm=cls._algorithm,
             headers=headers
         )
-
-        return encoded_jwt.decode()
+        cls.token = encoded_jwt.decode()
+        return cls.token
 
 
 class SecretManager:
 
+    _private = None
+    _client = None
+
     @classmethod
     async def init(cls):
         boto_session = BotoSession.get()
-        cls.logger = Logger.get_logger(cls.__name__)
         cls._client = boto_session.create_client(
             'secretsmanager',
             endpoint_url=settings.SECRETS_ENDPOINT_URL
@@ -136,3 +148,37 @@ class SecretManager:
     @classmethod
     def decrypt(cls, data):
         return cls._fernet.decrypt(data.encode()).decode()
+
+
+class BotoSession:
+
+    _session = None
+    _default_config = None
+
+    @classmethod
+    async def init(cls):
+        if cls._session is None:
+            cls._session = aiobotocore.get_session()
+
+    @classmethod
+    async def clear(cls):
+        pass
+
+    @classmethod
+    def get(cls):
+        if cls._session is None:
+            cls.init()
+
+        return cls._session
+
+    @classmethod
+    def get_config(cls):
+        if cls._default_config is None:
+            cls._default_config = Config(
+                connect_timeout=5,
+                read_timeout=5,
+                retries={'max_attempts': 2},
+                max_pool_connections=5
+            )
+
+        return cls._default_config
