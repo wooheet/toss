@@ -1,6 +1,5 @@
 Django==3.1.7
 djangorestframework==3.12.4
-djangorestframework-jwt==1.11.0
 django-cors-headers==3.2.1
 pytz==2019.3
 sqlparse==0.3.0
@@ -11,7 +10,6 @@ PyJWT==1.7.1
 graphene~=2.1.8
 django-filter==2.4.0
 graphene-sqlalchemy==2.3.0
-django-graphql-jwt==0.3.0
 django-redis==4.12.1
 django-graphql-auth==0.3.16
 graphene-django==2.15.0
