@@ -68,7 +68,7 @@ class TokenManager:
 
         if jwt_exp_timedelta is None:
             jwt_exp_timedelta = cls._jwt_exp_timedelta
-
+        # TODO Secretmanager setting
         private_key = SecretManager.get_private()
         payload = cls._build_payload(
             user_id, device_unique_id, jwt_exp_timedelta

@@ -198,8 +198,9 @@ class TokenViewSet(views.APIView, CustomResponseMixin):
         data = dict()
 
         try:
-            user_id = request.data.get('user_id', None)
-            device_unique_id = request.data.get('device_unique_id', None)
+            user_id = request.user.id
+            # device_unique_id = request.data.get('device_unique_id', None)
+            device_unique_id = "request.data.get('device_unique_id', None)"
 
             token_manager = TokenManager()
 

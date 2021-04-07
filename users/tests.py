@@ -19,14 +19,7 @@ class TestAuthUserAPI(AuthAPITestCase):
         )
         self.assertEqual(res.status_code, 200)
         res_data = res.data.get('results')[0]
-        self.assertEqual(res_data.get('result_code'), 1)
         self.assertEqual(res_data.get('email'), 'name@mail.com')
-
-    # def test_get_user_status(self):
-    #     self.client.credentials(HTTP_USER_AGENT='SpooncastAuthServer')
-    #     res = self.client.get(reverse('user-status',
-    #                                   kwargs={'pk': self.user.get('id')}))
-    #     self.assertEqual(res.status_code, 200)
 
     def test_signin_wrong_jwt_token(self):
         normal_credentials = self.client._credentials['HTTP_AUTHORIZATION']
@@ -71,3 +64,9 @@ class TestAuthUserAPI(AuthAPITestCase):
             reverse('user-signin'), format='json'
         )
         self.assertEqual(res.status_code, 460)
+
+    def test_create_jwt_token(self):
+        res = self.client.post(
+            reverse('user-token'), format='json'
+        )
+        self.assertEqual(res.status_code, 200)
