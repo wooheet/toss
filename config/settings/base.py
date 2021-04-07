@@ -287,3 +287,5 @@ w2iF3fZW9Z8uoe8/Z0KebmeoUKw0dKoxoEHRp2XWeMTcRM+uQCVJrNv8RqbPTyno
 WoqonFyTWehJ3IZg/Nw2b5cCAwEAAQ==
 -----END PUBLIC KEY-----
 """
+
+COUNTRY = ENV('COUNTRY', 'KR')
