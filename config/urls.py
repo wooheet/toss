@@ -24,5 +24,6 @@ urlpatterns = [
     path(r'users/', include('users.urls')),
     path(r'signup/', user_view.SignUpView.as_view(), name='user-signup'),
     path(r'signin/', user_view.SignInView.as_view(), name='user-signin'),
+    path(r'token/', user_view.TokenViewSet.as_view(), name='user-token'),
 ]
 

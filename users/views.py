@@ -1,18 +1,14 @@
 import copy
 import logging
-from django.shortcuts import render
-from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import viewsets, mixins, views
 from rest_framework.decorators import action
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import User, Profile
 from .serializers import (UserSerializer, MyProfileSerializer, \
                           UserLoginAndSignResultSerializer)
 from config.mixins import CustomResponseMixin, CustomPaginatorMixin
-from django.http import HttpResponse
 from config.log import LOG
+from config.manager import TokenManager
 
 logger = logging.getLogger(__name__)
 
@@ -193,3 +189,28 @@ class SignInView(views.APIView, CustomResponseMixin):
             data=dict(extra=data_copy))
         return self.success(results=user_data)
 
+
+class TokenViewSet(views.APIView, CustomResponseMixin):
+    permission_classes = (AllowAny,)
+    serializer_class = UserSerializer
+
+    def post(self, request, *args, **kwargs):
+        data = dict()
+
+        try:
+            user_id = request.data.get('user_id', None)
+            device_unique_id = request.data.get('device_unique_id', None)
+
+            token_manager = TokenManager()
+
+            token = token_manager.create_jwt(user_id, device_unique_id)
+            refresh_token = token_manager.create_refresh_token()
+
+            data = {
+                'token': token,
+                'refresh_token': refresh_token
+            }
+        except Exception as e:
+            logger.error(e)
+
+        return self.success(results=data)
