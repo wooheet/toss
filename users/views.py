@@ -199,8 +199,8 @@ class TokenViewSet(views.APIView, CustomResponseMixin):
 
         try:
             user_id = request.user.id
-            # device_unique_id = request.data.get('device_unique_id', None)
-            device_unique_id = "request.data.get('device_unique_id', None)"
+            device_unique_id = request.data.get('device_unique_id',
+                                                'device_unique_id')
 
             token_manager = TokenManager()
 
